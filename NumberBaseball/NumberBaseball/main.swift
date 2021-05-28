@@ -6,7 +6,7 @@
 //
 import Foundation
 
-var remainCount: Int = 3
+
 let inputNumbersCount: Int = 3
 
 func makeThreeRandomNumber() -> [String] {
@@ -21,9 +21,9 @@ func makeThreeRandomNumber() -> [String] {
     return tempRandomNumbers
 }
 
-func judgeStrikeBall(com: [String], user: [String]) {
+func judgeStrikeBall(com: [String], user: [String]) -> [Int] {
     var strike = 0, ball = 0
-
+    
     for (indexCom, valueCom) in com.enumerated() {
         for (indexUser, valueUser) in user.enumerated() {
             if indexCom == indexUser && valueCom == valueUser {
@@ -34,16 +34,11 @@ func judgeStrikeBall(com: [String], user: [String]) {
         }
     }
     
-    remainCount -= 1
-    print("남은 기회: \(remainCount)")
-    print("\(strike) 스트라이크, \(ball) 볼")
-    
-    if com == user {
-        remainCount = 0
-        print("사용자 승리!")
-        startMenu()
+    if strike == 3 {
+        return [0, strike, ball]
+    } else {
+        return [2, strike, ball]
     }
-    
 }
 
 func startMenu() {
@@ -54,7 +49,7 @@ func startMenu() {
     
     if let input: String = input, input == "1" {
         startGame()
-    } else if let input: String = input, input == "2" {
+    } else if input == "2" {
         print("게임 종료")
     } else {
         print("입력이 잘못되었습니다")
@@ -86,7 +81,7 @@ func isUserNumberTrueFalse(_ userNumbers: [String]) -> Bool {
             return false
         }
     }
-
+    
     switch userNumbers {
     case userNumbers where userNumbers.count == 3:
         return true
@@ -96,21 +91,35 @@ func isUserNumberTrueFalse(_ userNumbers: [String]) -> Bool {
 }
 
 func startGame() {
-    print("숫자 3개를 띄어쓰기로 구분하여 입력해주세요.\n중복 숫자는 허용하지 않습니다.")
-//    let comArray: [String] = makeThreeRandomNumber()
-    let comArray: [String] = ["1", "2", "3"]
+    var remainCount: Int = 9
+    let comArray: [String] = makeThreeRandomNumber()
     
-    while remainCount >= 0 {
+    print("숫자 3개를 띄어쓰기로 구분하여 입력해주세요.\n중복 숫자는 허용하지 않습니다.")
+    
+    gameLoop: while remainCount >= 0 {
         let userArray = inputUserArray()
-        if isUserNumberTrueFalse(userArray) {
-            judgeStrikeBall(com: comArray, user: userArray)
-        } else {
+        if isUserNumberTrueFalse(userArray) == false {
             print("입력이 잘못되었습니다")
             print("숫자 3개를 띄어쓰기로 구분하여 입력해주세요.\n중복 숫자는 허용하지 않습니다.")
+            continue gameLoop
         }
-        if remainCount == 0 {
+        
+        let status: [Int] = judgeStrikeBall(com: comArray, user: userArray)
+        remainCount -= 1
+        
+        switch status[0] {
+        case 0:
+            print("사용자 승리!")
+            startMenu()
+        case status[0] where remainCount == 0:
             print("컴퓨터 승리...!")
             startMenu()
+        case 2:
+            print("남은 기회: \(remainCount)")
+            print("\(status[1]) 스트라이크, \(status[2]) 볼")
+        default:
+            print("입력이 잘못되었습니다")
+            print("숫자 3개를 띄어쓰기로 구분하여 입력해주세요.\n중복 숫자는 허용하지 않습니다.")
         }
     }
 }
